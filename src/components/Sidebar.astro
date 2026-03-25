@@ -1,0 +1,206 @@
+---
+import { getCollection } from 'astro:content';
+
+const allPosts = await getCollection('blog');
+const publishedPosts = allPosts
+  .filter((post) => !post.data.draft)
+  .sort((a, b) => new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime());
+
+// Agrupar posts por año y mes
+interface PostsByMonth {
+  [year: string]: {
+    [month: string]: typeof publishedPosts;
+  };
+}
+
+const postsByDate: PostsByMonth = {};
+
+publishedPosts.forEach((post) => {
+  const date = new Date(post.data.pubDate);
+  const year = date.getFullYear().toString();
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const monthName = new Intl.DateTimeFormat('es-ES', { month: 'long' }).format(date);
+
+  if (!postsByDate[year]) {
+    postsByDate[year] = {};
+  }
+  if (!postsByDate[year][month]) {
+    postsByDate[year][month] = [];
+  }
+  postsByDate[year][month].push(post);
+});
+
+// Ordenar años descendentemente
+const years = Object.keys(postsByDate).sort((a, b) => parseInt(b) - parseInt(a));
+
+// Función para obtener nombre del mes
+const getMonthName = (monthNum: string): string => {
+  const date = new Date(2024, parseInt(monthNum) - 1);
+  return new Intl.DateTimeFormat('es-ES', { month: 'long' }).format(date);
+};
+---
+
+<aside class="sidebar">
+  <nav class="sidebar-nav">
+    <h3 class="sidebar-title">Histórico de Artículos</h3>
+    
+    <div class="posts-tree">
+      {years.map((year) => (
+        <details class="year-group" open={years.indexOf(year) === 0}>
+          <summary class="year-header">
+            <span class="year-icon">📅</span>
+            {year}
+            <span class="count">({Object.values(postsByDate[year]).flat().length})</span>
+          </summary>
+          
+          <div class="months-list">
+            {Object.keys(postsByDate[year])
+              .sort((a, b) => parseInt(b) - parseInt(a))
+              .map((month) => (
+                <details class="month-group" open={years.indexOf(year) === 0 && month === Object.keys(postsByDate[year])[0]}>
+                  <summary class="month-header">
+                    <span class="month-icon">📝</span>
+                    {getMonthName(month)}
+                    <span class="count">({postsByDate[year][month].length})</span>
+                  </summary>
+                  
+                  <ul class="articles-list">
+                    {postsByDate[year][month].map((post) => (
+                      <li>
+                        <a href={`/blog/${post.slug}/`} class="article-link">
+                          {post.data.title}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              ))}
+          </div>
+        </details>
+      ))}
+    </div>
+  </nav>
+</aside>
+
+<style>
+  .sidebar {
+    width: 100%;
+    max-width: 280px;
+    background-color: var(--color-bg);
+    border-right: 1px solid var(--color-border);
+    overflow-y: auto;
+    max-height: calc(100vh - 4rem);
+    position: sticky;
+    top: 4rem;
+  }
+
+  .sidebar-nav {
+    padding: 1.5rem 1rem;
+  }
+
+  .sidebar-title {
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text);
+    opacity: 0.7;
+    margin: 0 0 1rem 0;
+  }
+
+  .posts-tree {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .year-group,
+  .month-group {
+    border-radius: 6px;
+    transition: background-color 0.2s ease;
+  }
+
+  .year-group[open],
+  .month-group[open] {
+    background-color: var(--color-border);
+    background-color: rgba(37, 99, 235, 0.1);
+  }
+
+  .year-header,
+  .month-header {
+    cursor: pointer;
+    padding: 0.5rem 0.75rem;
+    border-radius: 4px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-text);
+    transition: background-color 0.2s ease;
+    user-select: none;
+  }
+
+  .year-header:hover,
+  .month-header:hover {
+    background-color: var(--color-border);
+  }
+
+  .year-icon {
+    display: inline-block;
+    font-size: 1rem;
+  }
+
+  .month-icon {
+    display: inline-block;
+    font-size: 0.875rem;
+  }
+
+  .count {
+    font-size: 0.75rem;
+    opacity: 0.6;
+    margin-left: auto;
+    font-weight: 500;
+  }
+
+  .months-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding-left: 1rem;
+  }
+
+  .articles-list {
+    list-style: none;
+    padding: 0.5rem 0 0.5rem 1rem;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .article-link {
+    color: var(--color-accent);
+    text-decoration: none;
+    font-size: 0.875rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 3px;
+    display: block;
+    transition: background-color 0.2s ease;
+  }
+
+  .article-link:hover {
+    background-color: var(--color-border);
+    text-decoration: underline;
+  }
+
+  /* Estilos para detalles (chevron) */
+  details > summary::marker {
+    color: var(--color-accent);
+  }
+
+  @media (max-width: 768px) {
+    .sidebar {
+      display: none;
+    }
+  }
+</style>

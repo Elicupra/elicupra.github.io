@@ -1,222 +1,145 @@
 ---
+import MainLayout from '../layouts/MainLayout.astro';
 import { getCollection } from 'astro:content';
 
 const allPosts = await getCollection('blog');
 const publishedPosts = allPosts
   .filter((post) => !post.data.draft)
   .sort((a, b) => new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime());
-
-const allTags = [...new Set(publishedPosts.flatMap((post) => post.data.tags))];
 ---
 
-<!DOCTYPE html>
-<html lang="es">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Blog - Elicupra</title>
-    <meta name="description" content="Blog de informática, hardware y software" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <style>
-      :root {
-        --color-bg: #ffffff;
-        --color-text: #1a1a1a;
-        --color-border: #e5e7eb;
-        --color-accent: #2563eb;
-      }
+<MainLayout title="Blog" description="Blog de informática, hardware y software">
+  <div class="container">
+    <header>
+      <h1>Blog</h1>
+      <p>Artículos sobre informática, hardware y software</p>
+    </header>
 
-      html.dark {
-        --color-bg: #0f172a;
-        --color-text: #f1f5f9;
-        --color-border: #334155;
-        --color-accent: #60a5fa;
-      }
+    {publishedPosts.length === 0 ? (
+      <div class="no-posts">
+        <p>No hay artículos publicados todavía. ¡Vuelve pronto!</p>
+      </div>
+    ) : (
+      <div class="posts-grid">
+        {publishedPosts.map((post) => (
+          <article class="post-card">
+            <h3>
+              <a href={`/blog/${post.slug}/`}>{post.data.title}</a>
+            </h3>
+            <p class="post-meta">
+              {post.data.pubDate.toLocaleDateString('es-ES', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })}
+              {' — '}
+              {post.data.author}
+            </p>
+            <p class="post-description">{post.data.description}</p>
+            {post.data.tags.length > 0 && (
+              <div class="post-tags">
+                {post.data.tags.map((tag) => (
+                  <span class="tag">{tag}</span>
+                ))}
+              </div>
+            )}
+          </article>
+        ))}
+      </div>
+    )}
+  </div>
 
-      html {
-        color-scheme: light;
-      }
+  <style>
+    .container {
+      width: 100%;
+      max-width: 48rem;
+      margin-left: auto;
+      margin-right: auto;
+      padding: 2rem 1rem;
+    }
 
-      html.dark {
-        color-scheme: dark;
-      }
+    header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
 
-      body {
-        background-color: var(--color-bg);
-        color: var(--color-text);
-        transition: background-color 0.3s ease, color 0.3s ease;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-        line-height: 1.6;
-        margin: 0;
-        padding: 0;
-      }
+    header h1 {
+      font-size: 2.25rem;
+      font-weight: bold;
+      margin: 0 0 0.5rem 0;
+    }
 
-      .container {
-        width: 100%;
-        max-width: 48rem;
-        margin-left: auto;
-        margin-right: auto;
-        padding: 2rem 1rem;
-      }
+    header p {
+      color: var(--color-text);
+      opacity: 0.7;
+      margin: 0;
+    }
 
-      header {
-        text-align: center;
-        margin-bottom: 3rem;
-      }
+    .posts-grid {
+      display: grid;
+      gap: 1.5rem;
+    }
 
-      header h1 {
-        font-size: 2.25rem;
-        font-weight: bold;
-        margin: 0 0 0.5rem 0;
-      }
+    .post-card {
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      transition: all 0.3s ease;
+    }
 
-      header p {
-        color: var(--color-text);
-        opacity: 0.7;
-        margin: 0;
-      }
+    .post-card:hover {
+      border-color: var(--color-accent);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
 
-      .theme-toggle {
-        position: fixed;
-        top: 1rem;
-        right: 1rem;
-        background: var(--color-accent);
-        color: white;
-        border: none;
-        padding: 0.5rem 1rem;
-        border-radius: 6px;
-        cursor: pointer;
-        font-weight: 600;
-      }
+    .post-card h3 {
+      margin: 0 0 0.5rem 0;
+      font-size: 1.5rem;
+    }
 
-      .theme-toggle:hover {
-        opacity: 0.8;
-      }
+    .post-card a {
+      color: var(--color-accent);
+      text-decoration: none;
+    }
 
-      .posts-grid {
-        display: grid;
-        gap: 1.5rem;
-      }
+    .post-card a:hover {
+      text-decoration: underline;
+    }
 
-      .post-card {
-        border: 1px solid var(--color-border);
-        border-radius: 8px;
-        padding: 1.5rem;
-        transition: all 0.3s ease;
-      }
+    .post-meta {
+      color: var(--color-text);
+      opacity: 0.6;
+      font-size: 0.875rem;
+      margin-bottom: 0.75rem;
+    }
 
-      .post-card:hover {
-        border-color: var(--color-accent);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      }
+    .post-description {
+      margin: 0.75rem 0;
+      color: var(--color-text);
+      opacity: 0.85;
+    }
 
-      .post-card h3 {
-        margin: 0 0 0.5rem 0;
-        font-size: 1.5rem;
-      }
+    .post-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
 
-      .post-card a {
-        color: var(--color-accent);
-        text-decoration: none;
-      }
+    .tag {
+      display: inline-block;
+      background-color: var(--color-border);
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
 
-      .post-card a:hover {
-        text-decoration: underline;
-      }
-
-      .post-meta {
-        color: var(--color-text);
-        opacity: 0.6;
-        font-size: 0.875rem;
-        margin-bottom: 0.75rem;
-      }
-
-      .post-description {
-        margin: 0.75rem 0;
-        color: var(--color-text);
-        opacity: 0.85;
-      }
-
-      .post-tags {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        margin-top: 1rem;
-      }
-
-      .tag {
-        display: inline-block;
-        background-color: var(--color-border);
-        padding: 0.25rem 0.75rem;
-        border-radius: 999px;
-        font-size: 0.75rem;
-        font-weight: 600;
-      }
-
-      .no-posts {
-        text-align: center;
-        padding: 3rem 1rem;
-        color: var(--color-text);
-        opacity: 0.6;
-      }
-    </style>
-  </head>
-  <body>
-    <button class="theme-toggle" onclick="toggleTheme()">
-      🌙 Dark
-    </button>
-
-    <div class="container">
-      <header>
-        <h1>Blog</h1>
-        <p>Artículos sobre informática, hardware y software</p>
-      </header>
-
-      {publishedPosts.length === 0 ? (
-        <div class="no-posts">
-          <p>No hay artículos publicados todavía. ¡Vuelve pronto!</p>
-        </div>
-      ) : (
-        <div class="posts-grid">
-          {publishedPosts.map((post) => (
-            <article class="post-card">
-              <h3>
-                <a href={`/blog/${post.slug}/`}>{post.data.title}</a>
-              </h3>
-              <p class="post-meta">
-                {post.data.pubDate.toLocaleDateString('es-ES', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                })}
-                {' — '}
-                {post.data.author}
-              </p>
-              <p class="post-description">{post.data.description}</p>
-              {post.data.tags.length > 0 && (
-                <div class="post-tags">
-                  {post.data.tags.map((tag) => (
-                    <span class="tag">{tag}</span>
-                  ))}
-                </div>
-              )}
-            </article>
-          ))}
-        </div>
-      )}
-    </div>
-
-    <script>
-      function toggleTheme() {
-        const html = document.documentElement;
-        html.classList.toggle('dark');
-        localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
-      }
-
-      // Detectar tema del sistema al cargar
-      if (localStorage.getItem('theme') === 'dark' || 
-          (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-        document.documentElement.classList.add('dark');
-      }
-    </script>
-  </body>
-</html>
+    .no-posts {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--color-text);
+      opacity: 0.6;
+    }
+  </style>
+</MainLayout>
