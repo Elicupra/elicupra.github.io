@@ -1,0 +1,86 @@
+---
+import Giscus from '../components/Giscus';
+import '../styles/blog.css';
+
+interface Props {
+  frontmatter: {
+    title: string;
+    description: string;
+    pubDate: Date;
+    updatedDate?: Date;
+    author: string;
+    tags: string[];
+    image?: { url: string; alt: string };
+    comments: boolean;
+  };
+}
+
+const { frontmatter } = Astro.props;
+const { title, description, pubDate, updatedDate, author, tags, comments } = frontmatter;
+
+const formattedDate = pubDate.toLocaleDateString('es-ES', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+
+const formattedUpdatedDate = updatedDate?.toLocaleDateString('es-ES', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+---
+
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title} - Elicupra Blog</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body>
+    <div class="container mx-auto max-w-3xl px-4 py-12">
+      <!-- Header -->
+      <header class="mb-8">
+        <a href="/" class="text-sm text-blue-600 dark:text-blue-400 hover:underline mb-4 inline-block">
+          ← Volver al inicio
+        </a>
+        <h1 class="text-4xl font-bold mb-3 dark:text-white">{title}</h1>
+        <p class="text-gray-600 dark:text-gray-400 mb-4">{description}</p>
+        <div class="flex flex-wrap items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+          <span>Por <strong>{author}</strong></span>
+          <span>{formattedDate}</span>
+          {updatedDate && <span>Actualizado: {formattedUpdatedDate}</span>}
+        </div>
+        {tags.length > 0 && (
+          <div class="flex flex-wrap gap-2 mt-4">
+            {tags.map((tag) => (
+              <span class="inline-block bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-3 py-1 rounded-full text-xs font-semibold">
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
+      </header>
+
+      <!-- Content -->
+      <article class="prose dark:prose-invert max-w-none mb-12">
+        <slot />
+      </article>
+
+      <!-- Giscus Comments -->
+      <Giscus client:load enabled={comments} title={title} />
+
+      <!-- Footer -->
+      <footer class="mt-12 pt-8 border-t border-gray-300 dark:border-gray-700">
+        <p class="text-sm text-gray-600 dark:text-gray-400">
+          © 2024 Elicupra. Todos los derechos reservados.
+        </p>
+      </footer>
+    </div>
+  </body>
+</html>

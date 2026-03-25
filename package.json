@@ -1,0 +1,22 @@
+{
+  "name": "elicupra-blog",
+  "version": "1.0.0",
+  "description": "Blog personal de Elicupra - Informática, hardware y software",
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "deploy": "npm run build && git add -A && git commit -m 'Deploy update' && git push origin main"
+  },
+  "dependencies": {
+    "astro": "^4.3.0",
+    "@astrojs/react": "^3.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0"
+  }
+}
