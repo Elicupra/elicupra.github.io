@@ -2,11 +2,10 @@
 title: "Mas alla del Vibe Coding - 6 Lecciones Criticas del Nuevo Paradigma de Desarrollo con IA"
 description: "Paradigma del desarrollador"
 pubDate: 2026-04-10
-updatedDate: 2024-03-26  # Opcional
 author: "Eliseo Ortigosa"
 tags: ["Inteligencia Artificial", "Arquitectura", "Human-Loop"]
-comments: false           # true = comentarios habilitados, false = sin comentarios
-draft: false            # true = no se publica, false = publicado
+comments: true
+draft: false
 ---
 # Mas alla del Vibe Coding - 6 Lecciones Criticas del Nuevo Paradigma de Desarrollo con IA
 
