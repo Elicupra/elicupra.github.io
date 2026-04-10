@@ -11,8 +11,6 @@ draft: false
 
 > **Fuente:** [YouTube - Mas alla del Vibe Coding](https://www.youtube.com/watch?v=X0oHLHIL7Mk)
 
-**Relacionado:** [[Reglas de OpenCode]] | [[Investigacion - AGENTS.md en Profundidad]] | [[Notas Python desde NotebookLM]] | [[Agent Skills - Guia de Inicio Rapido]]
-
 ---
 
 ## Resumen
